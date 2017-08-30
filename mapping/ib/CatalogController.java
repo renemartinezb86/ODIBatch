@@ -3,13 +3,17 @@ package mapping.ib;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import java.nio.charset.StandardCharsets;
 
 import java.text.SimpleDateFormat;
 
@@ -57,11 +61,12 @@ public class CatalogController {
         String fileToWrite = "IB_PRODUCTOS_".concat(sdfForFile.format(actualDate).concat(".csv"));
 
         BufferedWriter bw = null;
-        FileWriter fw = null;
         String line = "";
         try {
-            fw = new FileWriter(xCatalogPath + fileToWrite);
-            bw = new BufferedWriter(fw);
+
+            bw =
+                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xCatalogPath + fileToWrite),
+                                                          StandardCharsets.ISO_8859_1));
 
             List<String[]> params = common.readCatalogFile(offeringXMLPath);
             bw.write("Código Product Offer;Nombre Product Offer;Descripción Product Offer;SubFamily;SubType;Subtechnology;Nombre del equipo;Modelo del Equipo;Código Material del Equipo;Cargo Fijo Neto;Fecha de Creación;Fecha de Actualización");
@@ -85,8 +90,6 @@ public class CatalogController {
             try {
                 if (bw != null)
                     bw.close();
-                if (fw != null)
-                    fw.close();
             } catch (IOException ex) {
 
                 ex.printStackTrace();

@@ -3,11 +3,15 @@ package mapping.ib;
 import java.io.BufferedWriter;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+
+import java.nio.charset.StandardCharsets;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -23,7 +27,6 @@ import main.tde.java.Common;
 public class ActivePreController {
 
     private Common common;
-    BufferedWriter out = null;
     private String connectionURI = "jdbc:oracle:thin:@10.49.4.105:1530/OCRMI01.tdenopcl.internal";
     private String user = "EAIUSER";
     private String pass = "EAIUSER";
@@ -48,7 +51,7 @@ public class ActivePreController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/actpre.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\actpre.properties";
+            //propFileName = "C:\\Users\\proyecto\\Documents\\Work\\ODI\\conf\\actpre.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -71,17 +74,18 @@ public class ActivePreController {
         SimpleDateFormat sdfForFile = new SimpleDateFormat("yyyyMMddHHmmss");
         String fileToWrite = "IB_ACTV_PREPAGO_".concat(sdfForFile.format(actualDate).concat(".csv"));
 
-        FileWriter fw = null;
         String line = "";
-
+        BufferedWriter bw = null;
         try {
-            fw = new FileWriter(odiOutputPath + fileToWrite, true);
-            out = new BufferedWriter(fw);
+            bw =
+                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(odiOutputPath + fileToWrite),
+                                                          StandardCharsets.ISO_8859_1));
 
             List<String[]> params = common.readActivePreFile(odiInputPath);
             String header =
                 "Codigo de la Venta;Codigo del Contrato;Codigo Sucursal;RUT/RUC Codigo del Personal;Codigo del Cliente;Tipo de documento;Tipo RUC;Nombre del Cliente;Ciudad de Domicilio del Cliente;MSISDN;IMEI;IMSI;CustomerSince;Portabilidad;Operador Origen;Plan Origen Portabilidad;Product Offer;Fecha de la Venta;Fecha de Activacion";
-            writeLine(header);
+            bw.write(header);
+            bw.newLine();
             for (String[] param : params) {
                 for (int i = 0; i < param.length; i++) {
                     line += param[i] + ";";
@@ -89,7 +93,8 @@ public class ActivePreController {
                 if (!line.isEmpty()) {
                     line = line.substring(0, line.length() - 1);
                 }
-                writeLine(line);
+                bw.write(line);
+                bw.newLine();
                 line = "";
             }
 
@@ -97,19 +102,12 @@ public class ActivePreController {
             e.printStackTrace();
         } finally {
             try {
-                if (out != null)
-                    out.close();
-                if (fw != null)
-                    fw.close();
+                if (bw != null)
+                    bw.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         }
         return result;
-    }
-
-    private void writeLine(String line) throws Exception {
-        out.write(line);
-        out.newLine();
     }
 }

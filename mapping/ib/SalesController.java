@@ -4,6 +4,8 @@ import main.tde.java.Common;
 
 import java.io.*;
 
+import java.nio.charset.StandardCharsets;
+
 import java.sql.*;
 
 import java.text.SimpleDateFormat;
@@ -18,7 +20,6 @@ import java.util.Properties;
 public class SalesController {
 
     private Common common;
-    BufferedWriter out = null;
     private String connectionURI = "jdbc:oracle:thin:@10.49.4.105:1530/OCRMI01.tdenopcl.internal";
     private String user = "EAIUSER";
     private String pass = "EAIUSER";
@@ -44,7 +45,7 @@ public class SalesController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/sales.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\sales.properties";
+            //propFileName = "C:\\Users\\proyecto\\Documents\\Work\\ODI\\conf\\sales.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -66,18 +67,18 @@ public class SalesController {
         Date actualDate = new Date();
         SimpleDateFormat sdfForFile = new SimpleDateFormat("yyyyMMddHHmmss");
         String fileToWrite = "IB_VENTAS_PREPAGO_".concat(sdfForFile.format(actualDate).concat(".csv"));
-
-        FileWriter fw = null;
         String line = "";
-
+        BufferedWriter bw = null;
         try {
-            fw = new FileWriter(xSalesPath + fileToWrite, true);
-            out = new BufferedWriter(fw);
+            bw =
+                new BufferedWriter(new OutputStreamWriter(new FileOutputStream(xSalesPath + fileToWrite),
+                                                          StandardCharsets.ISO_8859_1));
 
             List<String[]> params = common.readSalesPreFile(eocOrderXMLPath);
             String header =
-                "Código de la Venta;Código del Contrato;Codigo Sucursal;RUT/RUC Código del Personal;Código del Cliente;Tipo de documento;Tipo RUC;Nombre del Cliente;Ciudad de Domicílio del Cliente;MSISDN;IMEI;IMSI;CustomerSince;Portabilidad;Operador Origen;Plan Origen Portabilidad;Product Offer;Fecha de la Venta";
-            writeLine(header);
+                "Código de la Venta;Código del Contrato;Codigo Sucursal;RUT/RUC Código del Personal;Código del Cliente;Tipo de documento;Tipo RUC;Nombre del Cliente;Ciudad de Domicílio del Cliente;MSISDN;IMEI;IMSI;CustomerSince;Portabilidad;Operador Origen;Plan Origen Portabilidad;Product Offer;Fecha de la Venta;Precio";
+            bw.write(header);
+            bw.newLine();
             for (String[] param : params) {
                 for (int i = 0; i < param.length; i++) {
                     line += param[i] + ";";
@@ -85,7 +86,8 @@ public class SalesController {
                 if (!line.isEmpty()) {
                     line = line.substring(0, line.length() - 1);
                 }
-                writeLine(line);
+                bw.write(line);
+                bw.newLine();
                 line = "";
             }
 
@@ -93,10 +95,8 @@ public class SalesController {
             e.printStackTrace();
         } finally {
             try {
-                if (out != null)
-                    out.close();
-                if (fw != null)
-                    fw.close();
+                if (bw != null)
+                    bw.close();
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
@@ -104,8 +104,4 @@ public class SalesController {
         return result;
     }
 
-    private void writeLine(String line) throws Exception {
-        out.write(line);
-        out.newLine();
-    }
 }
