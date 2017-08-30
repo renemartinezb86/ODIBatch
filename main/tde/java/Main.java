@@ -43,7 +43,8 @@ public class Main {
             case "-ebs":
                     //ETL_Accessory_EBS_to_CDM
                     itemCreController.mapDBToXml();
-                    itemLocController.mapXmlToXml();
+                    itemLocController.mapDBToXml();
+                    xOfficeController.mapDBToXOffice();
                     break;
             case "-ecm":
                 //ETL_ProductOffering_CDM_to_SIM_XOffice_RTD
@@ -61,7 +62,6 @@ public class Main {
                 sapController.processFailure();
                 xOfficeController.mapSAPToXOffice("sapFilePath");
                 ecmController.mapAFileToXML("sapFilePath");
-
                 break;
             case "-sfa":
                 //ETL_Accessory_CDM_to_XOffice_SIM_ECM
@@ -124,10 +124,10 @@ public class Main {
         } else {
             //ETL_Accessory_CDM_to_XOffice_SIM_ECM
             //activePreController.eocOrderToActivePre();
-            //equiposController.eocOrderToEquiposPre();
-            //salesController.eocOrderToVentaPre();
-            //simController.eocOrderToSimPre();
-            posController.mapPosToIB();
+            equiposController.eocOrderToEquiposPre();
+            simController.eocOrderToSimPre();
+            salesController.eocOrderToVentaPre();
+            activePreController.eocOrderToActivePre();
         }
     }
 }

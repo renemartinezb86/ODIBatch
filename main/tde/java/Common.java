@@ -490,6 +490,18 @@ public class Common {
         return value;
     }
 
+    public String getPriceValue(NodeList productOfferingPriceNodes) {
+        String value = "";
+        for (int j = 0; j < productOfferingPriceNodes.getLength(); j++) {
+            Node productOfferingPriceNode = productOfferingPriceNodes.item(j);
+            if (productOfferingPriceNode.getNodeName().split(":").length > 1 &&
+                productOfferingPriceNode.getNodeName().split(":")[1].equals("amount")) {
+                value = productOfferingPriceNode.getFirstChild().getTextContent();
+            }
+        }
+        return value;
+    }
+
     public String getBrandValue(NodeList productSpecCharacteristicNodes) {
         String value = "";
         for (int j = 0; j < productSpecCharacteristicNodes.getLength(); j++) {
@@ -537,7 +549,7 @@ public class Common {
         }
         return value;
     }
- 
+
     public String[] readSiebelData(String salesCode, String MSISDN) {
         String[] array = new String[] { "", "", "", "", "", "", "", "", "" };
         try {
@@ -629,7 +641,7 @@ public class Common {
         }
         return array;
     }
-    
+
     public List<String[]> readEBSDB(String url, String buser, String bpass) {
         List<String[]> params = new ArrayList();
         Connection bconnection = null;
@@ -644,49 +656,113 @@ public class Common {
         try {
             Statement stmt = null;
             String query =
-                "select a.segment1 codigo_articulo,\n" + 
-                "       a.description,\n" + 
-                "       a.primary_unit_of_measure,\n" + 
-                "       a.attribute1 descripcion_ingles,\n" + 
-                "       a.attribute2 descripcion_reposiciones,\n" + 
-                "       a.attribute3 modelo_equipo,\n" + 
-                "       a.attribute6 peso,\n" + 
-                "       a.attribute7 tipo_articulo,\n" + 
-                "       a.attribute8 subtipo,\n" + 
-                "       a.attribute11 proveedor,\n" + 
-                "       a.attribute12 tecnologia,\n" + 
-                "       a.list_price_per_unit precio_de_lista,\n" + 
-                "       a.last_update_date,\n" + 
-                "       a.creation_date,\n" + 
-                "       'TERMINALES' departamento,\n" + 
-                "       d.segment1 clase,\n" + 
-                "       d.segment2 subclase\n" + 
-                "  from inv.mtl_system_items_b  a,\n" + 
-                "       inv.mtl_parameters      b,\n" + 
-                "       inv.mtl_item_categories c,\n" + 
-                "       inv.mtl_categories_b    d\n" + 
-                " where 1 = 1\n" + 
-                "   and a.organization_id = b.organization_id\n" + 
-                "   and a.inventory_item_id = c.inventory_item_id\n" + 
-                "   and c.category_id = d.category_id\n" + 
-                "   and b.organization_code = 'NPE'\n" + 
-                "   and a.attribute7 = 'Accesorio'\n" + 
-                "   and d.structure_id =\n" + 
-                "       (select x.structure_id\n" + 
-                "          from inv.mtl_category_sets_b x, mtl_category_sets_tl y\n" + 
-                "         where x.category_set_id = y.category_set_id\n" + 
-                "           and y.category_set_name = 'Inventory'\n" + 
-                "           and y.language = 'ESA')";
+                "select a.segment1 codigo_articulo,\n" + "       a.description,\n" +
+                "       a.primary_unit_of_measure,\n" + "       a.attribute1 descripcion_ingles,\n" +
+                "       a.attribute2 descripcion_reposiciones,\n" + "       a.attribute3 modelo_equipo,\n" +
+                "       a.attribute6 peso,\n" + "       a.attribute7 tipo_articulo,\n" +
+                "       a.attribute8 subtipo,\n" + "       a.attribute11 proveedor,\n" +
+                "       a.attribute12 tecnologia,\n" + "       a.list_price_per_unit precio_de_lista,\n" +
+                "       a.last_update_date,\n" + "       a.creation_date,\n" + "       'TERMINALES' departamento,\n" +
+                "       d.segment1 clase,\n" + "       d.segment2 subclase\n" + "  from inv.mtl_system_items_b  a,\n" +
+                "       inv.mtl_parameters      b,\n" + "       inv.mtl_item_categories c,\n" +
+                "       inv.mtl_categories_b    d\n" + " where 1 = 1\n" +
+                "   and a.organization_id = b.organization_id\n" +
+                "   and a.inventory_item_id = c.inventory_item_id\n" + "   and c.category_id = d.category_id\n" +
+                "   and b.organization_code = 'NPE'\n" + "   and a.attribute7 = 'Accesorio'\n" +
+                "   and d.structure_id =\n" + "       (select x.structure_id\n" +
+                "          from inv.mtl_category_sets_b x, mtl_category_sets_tl y\n" +
+                "         where x.category_set_id = y.category_set_id\n" +
+                "           and y.category_set_name = 'Inventory'\n" + "           and y.language = 'ESA')";
 
             stmt = bconnection.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
-                String[] array = new String[7];
-                String DOC_EJEC_RESPONSABLE = "";
-                if (hasColumn(rs, "doc_ejec_responsable") && rs.getString("doc_ejec_responsable") != null) {
-                    DOC_EJEC_RESPONSABLE = rs.getString("doc_ejec_responsable");
+                String[] array = new String[17];
+                String codigo_articulo = "";
+                if (hasColumn(rs, "codigo_articulo") && rs.getString("codigo_articulo") != null) {
+                    codigo_articulo = rs.getString("codigo_articulo");
                 }
-                array[0] = DOC_EJEC_RESPONSABLE;
+                String description = "";
+                if (hasColumn(rs, "description") && rs.getString("description") != null) {
+                    description = rs.getString("description");
+                }
+                String primary_unit_of_measure = "";
+                if (hasColumn(rs, "primary_unit_of_measure") && rs.getString("primary_unit_of_measure") != null) {
+                    primary_unit_of_measure = rs.getString("primary_unit_of_measure");
+                }
+                String descripcion_ingles = "";
+                if (hasColumn(rs, "descripcion_ingles") && rs.getString("descripcion_ingles") != null) {
+                    descripcion_ingles = rs.getString("descripcion_ingles");
+                }
+                String descripcion_reposiciones = "";
+                if (hasColumn(rs, "descripcion_reposiciones") && rs.getString("descripcion_reposiciones") != null) {
+                    descripcion_reposiciones = rs.getString("descripcion_reposiciones");
+                }
+                String modelo_equipo = "";
+                if (hasColumn(rs, "modelo_equipo") && rs.getString("modelo_equipo") != null) {
+                    modelo_equipo = rs.getString("modelo_equipo");
+                }
+                String peso = "";
+                if (hasColumn(rs, "peso") && rs.getString("peso") != null) {
+                    peso = rs.getString("peso");
+                }
+                String tipo_articulo = "";
+                if (hasColumn(rs, "tipo_articulo") && rs.getString("tipo_articulo") != null) {
+                    tipo_articulo = rs.getString("tipo_articulo");
+                }
+                String subtipo = "";
+                if (hasColumn(rs, "subtipo") && rs.getString("subtipo") != null) {
+                    subtipo = rs.getString("subtipo");
+                }
+                String proveedor = "";
+                if (hasColumn(rs, "proveedor") && rs.getString("proveedor") != null) {
+                    proveedor = rs.getString("proveedor");
+                }
+                String tecnologia = "";
+                if (hasColumn(rs, "tecnologia") && rs.getString("tecnologia") != null) {
+                    tecnologia = rs.getString("tecnologia");
+                }
+                String precio_de_lista = "";
+                if (hasColumn(rs, "precio_de_lista") && rs.getString("precio_de_lista") != null) {
+                    precio_de_lista = rs.getString("precio_de_lista");
+                }
+                String last_update_date = "";
+                if (hasColumn(rs, "last_update_date") && rs.getString("last_update_date") != null) {
+                    last_update_date = rs.getString("last_update_date");
+                }
+                String creation_date = "";
+                if (hasColumn(rs, "creation_date") && rs.getString("creation_date") != null) {
+                    creation_date = rs.getString("creation_date");
+                }
+                String departamento = "";
+                if (hasColumn(rs, "departamento") && rs.getString("departamento") != null) {
+                    departamento = rs.getString("departamento");
+                }
+                String clase = "";
+                if (hasColumn(rs, "clase") && rs.getString("clase") != null) {
+                    clase = rs.getString("clase");
+                }
+                String subclase = "";
+                if (hasColumn(rs, "subclase") && rs.getString("subclase") != null) {
+                    subclase = rs.getString("subclase");
+                }
+                array[0] = codigo_articulo;
+                array[1] = description;
+                array[2] = primary_unit_of_measure;
+                array[3] = descripcion_ingles;
+                array[4] = descripcion_reposiciones;
+                array[5] = modelo_equipo;
+                array[6] = peso;
+                array[7] = tipo_articulo;
+                array[8] = subtipo;
+                array[9] = proveedor;
+                array[10] = tecnologia;
+                array[11] = precio_de_lista;
+                array[12] = last_update_date;
+                array[13] = creation_date;
+                array[14] = departamento;
+                array[15] = clase;
+                array[16] = subclase;
                 params.add(array);
             }
         } catch (Exception e) {
@@ -797,6 +873,15 @@ public class Common {
                                             IMSI = msisdnNode.getTextContent();
                                         }
                                     }
+                                }
+                                
+                                Node iccidNodes =
+                                    doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                               "ICCID").getLength() > 0 ?
+                                    doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                               "ICCID").item(0) : null;
+                                if (iccidNodes != null) {
+                                    IMSI = iccidNodes.getTextContent();
                                 }
 
                                 NodeList productSpecCharacteristics =
@@ -1118,6 +1203,7 @@ public class Common {
                             String portabilityOrigenPlan = "";
                             String productOffer = "";
                             String salesDate = "";
+                            String precio = "";
 
                             Boolean isValid = false;
 
@@ -1170,7 +1256,7 @@ public class Common {
                                             productSpecCharacteristicNode.getNodeName().split(":")[1].equals("name") &&
                                             productSpecCharacteristicNode.getTextContent().equalsIgnoreCase("specificationSubSubtype")) {
                                             String value = getContractCodeValue(productSpecCharacteristicNodes);
-                                            if (value.equalsIgnoreCase("card")) {
+                                            if (value.equalsIgnoreCase("card") || value.equalsIgnoreCase("bundle")) {
                                                 isValid = true;
                                                 productOffer =
                                                     productSpecCharacteristicNode.getParentNode().getParentNode().getParentNode().getParentNode().getChildNodes().item(0).getTextContent();
@@ -1217,6 +1303,33 @@ public class Common {
                                     }
                                 }
                             }
+
+                            NodeList productOfferingPrices =
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "ProductOfferingPrice").getLength() > 0 ?
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "ProductOfferingPrice") : null;
+                            if (productOfferingPrices != null) {
+                                for (int i = 0; i < productOfferingPrices.getLength(); i++) {
+                                    Node productOfferingPrice = productOfferingPrices.item(i);
+                                    NodeList productOfferingPriceNodes = productOfferingPrice.getChildNodes();
+                                    String taxCode = "tax";
+                                    for (int j = 0; j < productOfferingPriceNodes.getLength(); j++) {
+                                        Node productOfferingPriceNode = productOfferingPriceNodes.item(j);
+                                        if (productOfferingPriceNode.getNodeName().split(":").length > 1 &&
+                                            productOfferingPriceNode.getNodeName().split(":")[1].equals("taxCode")) {
+                                            taxCode = productOfferingPriceNode.getTextContent();
+                                        }
+                                        if (taxCode == null || taxCode.equals("")) {
+                                            precio = getPriceValue(productOfferingPriceNodes);
+                                        }
+                                    }
+                                    if (!sucursalCode.isEmpty()) {
+                                        break;
+                                    }
+                                }
+                            }
+
                             NodeList customerAccounts =
                                 doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
                                                            "CustomerAccount").getLength() > 0 ?
@@ -1285,19 +1398,13 @@ public class Common {
                                 }
                             }
 
-                            NodeList imsiNodes =
+                            Node imsiNodes =
                                 doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
-                                                           "IMSI").getLength() > 0 ?
+                                                           "ICCID").getLength() > 0 ?
                                 doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
-                                                           "IMSI").item(0).getChildNodes() : null;
+                                                           "ICCID").item(0) : null;
                             if (imsiNodes != null) {
-                                for (int j = 0; j < imsiNodes.getLength(); j++) {
-                                    Node msisdnNode = imsiNodes.item(j);
-                                    if (msisdnNode.getNodeName().split(":").length > 1 &&
-                                        msisdnNode.getNodeName().split(":")[1].equals("SN")) {
-                                        IMSI = msisdnNode.getTextContent();
-                                    }
-                                }
+                                IMSI = imsiNodes.getTextContent();
                             }
 
                             NodeList portabilityOrders =
@@ -1362,7 +1469,7 @@ public class Common {
                             param = new String[] {
                                 salesCode, contractCode, sucursalCode, rut, clientCode, documentType, "", clientName,
                                 clientCity, MSISDN, IMEI, IMSI, customerSince, portability, origenOperator,
-                                portabilityOrigenPlan, productOffer, salesDate
+                                portabilityOrigenPlan, productOffer, salesDate, precio
                             };
                             if (isValid) {
                                 params.add(param);
@@ -1409,6 +1516,7 @@ public class Common {
                             String MSISDN = "";
                             String IMSI = "";
                             String salesDate = "";
+                            int isValid = 0;
 
                             String salesCode =
                                 doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
@@ -1444,11 +1552,14 @@ public class Common {
                                             }
                                         }
                                     }
+
+
                                     if (!contractCode.isEmpty()) {
                                         break;
                                     }
                                 }
                             }
+
                             NodeList salesChannels =
                                 doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
                                                            "SalesChannel").getLength() > 0 ?
@@ -1521,20 +1632,89 @@ public class Common {
                                     }
                                 }
                             }
+                            NodeList resourcesSpec =
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "ResorceSpecification").getLength() > 0 ?
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "ResorceSpecification") : null;
 
-                            NodeList imsiNodes =
-                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
-                                                           "IMSI").getLength() > 0 ?
-                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
-                                                           "IMSI").item(0).getChildNodes() : null;
-                            if (imsiNodes != null) {
-                                for (int j = 0; j < imsiNodes.getLength(); j++) {
-                                    Node msisdnNode = imsiNodes.item(j);
-                                    if (msisdnNode.getNodeName().split(":").length > 1 &&
-                                        msisdnNode.getNodeName().split(":")[1].equals("SN")) {
-                                        IMSI = msisdnNode.getTextContent();
+                            if (resourcesSpec != null) {
+                                for (int i = 0; i < resourcesSpec.getLength(); i++) {
+                                    Node resource = resourcesSpec.item(i).getFirstChild();
+                                    if (resource.getNodeName().split(":").length > 1 &&
+                                        resource.getNodeName().split(":")[1].equals("ID")) {
+                                        String resourceId = resource.getTextContent();
+                                        if (resourceId.equals("PRS_SIM")) {
+                                            isValid++;
+                                            break;
+                                        }
                                     }
                                 }
+                            }
+
+                            NodeList resourceChar =
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "resourceCharacteristics").getLength() > 0 ?
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "resourceCharacteristics") : null;
+
+                            if (resourceChar != null) {
+                                String oldSerialNumber = "";
+                                for (int i = 0; i < resourceChar.getLength(); i++) {
+                                    Node resource = resourceChar.item(i);
+                                    NodeList resourcesNodes = resource.getChildNodes();
+                                    if (oldSerialNumber != null && !oldSerialNumber.equals("")) {
+                                        break;
+                                    }
+                                    for (int j = 0; j < resourcesNodes.getLength(); j++) {
+                                        Node resourcesNode = resourcesNodes.item(j);
+                                        if (resourcesNode.getNodeName().split(":").length > 1 &&
+                                            resourcesNode.getNodeName().split(":")[1].equals("name")) {
+                                            String resourceName = resourcesNode.getTextContent();
+                                            if (resourceName.contains("oldSerialNumber")) {
+                                                oldSerialNumber = getImeiValue(resourcesNodes);
+                                                if (oldSerialNumber != null && !oldSerialNumber.equals("")) {
+                                                    isValid++;
+                                                    break;
+                                                }
+                                            }
+                                        }
+
+                                    }
+                                }
+
+                                String serialNumber = "";
+                                for (int i = 0; i < resourceChar.getLength(); i++) {
+                                    Node resource = resourceChar.item(i);
+                                    NodeList resourcesNodes = resource.getChildNodes();
+                                    if (serialNumber != null && !serialNumber.equals("")) {
+                                        break;
+                                    }
+                                    for (int j = 0; j < resourcesNodes.getLength(); j++) {
+                                        Node resourcesNode = resourcesNodes.item(j);
+                                        if (resourcesNode.getNodeName().split(":").length > 1 &&
+                                            resourcesNode.getNodeName().split(":")[1].equals("name")) {
+                                            String resourceName = resourcesNode.getTextContent();
+                                            if (resourceName.contains("serialNumber")) {
+                                                serialNumber = getImeiValue(resourcesNodes);
+                                                if (serialNumber != null && !serialNumber.equals("")) {
+                                                    isValid++;
+                                                    break;
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                IMSI = serialNumber;
+                            }
+
+                            Node imsiNodes =
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "ICCID").getLength() > 0 ?
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "ICCID").item(0) : null;
+                            if (imsiNodes != null) {
+                                IMSI = imsiNodes.getTextContent();
                             }
                             String[] siebelData = readSiebelData(salesCode);
 
@@ -1548,7 +1728,9 @@ public class Common {
                                 salesCode, contractCode, sucursalCode, rut, clientCode, clientName, clientCity, MSISDN,
                                 IMSI, salesDate
                             };
-                            params.add(param);
+                            if (isValid > 2) {
+                                params.add(param);
+                            }
 
                         }
                         xmlFile.renameTo(new File(xmlFile.getParentFile().getParentFile().getPath() + File.separator +
@@ -1595,6 +1777,7 @@ public class Common {
                             String productOffer = "";
                             String salesDate = "";
                             Boolean isValid = false;
+                            String precio = "";
 
                             String salesCode =
                                 doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
@@ -1694,6 +1877,33 @@ public class Common {
                                     }
                                 }
                             }
+
+                            NodeList productOfferingPrices =
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "ProductOfferingPrice").getLength() > 0 ?
+                                doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
+                                                           "ProductOfferingPrice") : null;
+                            if (productOfferingPrices != null) {
+                                for (int i = 0; i < productOfferingPrices.getLength(); i++) {
+                                    Node productOfferingPrice = productOfferingPrices.item(i);
+                                    NodeList productOfferingPriceNodes = productOfferingPrice.getChildNodes();
+                                    String taxCode = "tax";
+                                    for (int j = 0; j < productOfferingPriceNodes.getLength(); j++) {
+                                        Node productOfferingPriceNode = productOfferingPriceNodes.item(j);
+                                        if (productOfferingPriceNode.getNodeName().split(":").length > 1 &&
+                                            productOfferingPriceNode.getNodeName().split(":")[1].equals("taxCode")) {
+                                            taxCode = productOfferingPriceNode.getTextContent();
+                                        }
+                                        if (taxCode == null || taxCode.equals("")) {
+                                            precio = getPriceValue(productOfferingPriceNodes);
+                                        }
+                                    }
+                                    if (!sucursalCode.isEmpty()) {
+                                        break;
+                                    }
+                                }
+                            }
+
                             NodeList customerAccounts =
                                 doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
                                                            "CustomerAccount").getLength() > 0 ?
@@ -1783,7 +1993,7 @@ public class Common {
 
                             param = new String[] {
                                 salesCode, contractCode, sucursalCode, rut, clientCode, clientName, clientCity, MSISDN,
-                                IMEI, salesDate, productOffer
+                                IMEI, salesDate, productOffer, precio
                             };
                             if (isValid) {
                                 params.add(param);
