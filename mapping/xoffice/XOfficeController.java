@@ -51,6 +51,71 @@ public class XOfficeController {
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
         }
+        String result = "";
+        int count = 0;
+        Date actualDate = new Date();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat sdfForFile = new SimpleDateFormat("yyyyMMdd_HHmmssSSS");
+        String fileToWrite = "ITEM_ALL_STORE_".concat(sdfForFile.format(actualDate).concat(".mnt"));
+        BufferedWriter bw = null;
+        FileWriter fw = null;
+        List<String[]> params = new ArrayList();
+        try {
+            params = common.readSapFile(sapFilePath);
+            fw = new FileWriter(xOfficePath + fileToWrite);
+            bw = new BufferedWriter(fw);
+            bw.write("<Header line_count=\"".concat(String.valueOf(params.size()).concat("\" download_id=\"" +
+                                                                                         sdfForFile.format(actualDate) +
+                                                                                         "\" application_date=\"".concat(sdf.format(actualDate).concat("\" target_org_node=\"*:*\" deployment_name=\"*:*\" download_time=\"IMMEDIATE\" apply_immediately=\"true\"/>\n")))));
+            for (String[] sapParams : params) {
+                if (sapParams.length > 5 && sapParams[5].equalsIgnoreCase("true")) {
+                    bw.write("INSERT|ITEM|" + sapParams[0] + "|ITEM|||STANDARD|" + sapParams[1] + "|" + sapParams[1] +
+                             "|" + sapParams[2] + "||" + sapParams[3] + "|" + sapParams[4] +
+                             "||||||||EA|||||||CL|||||||||||||||||||1|||||||||||||||||||||||||||||||||||||||*|*||||1|||||||\n");
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bw != null)
+                    bw.close();
+                if (fw != null)
+                    fw.close();
+            } catch (IOException ex) {
+
+                ex.printStackTrace();
+            }
+        }
+        return result = "";
+    }
+
+    public String mapDBToXOffice() {
+        String sapFilePath = "";
+        String xOfficePath = "";
+        String country = "CL";
+        String EBSconnectionURI = "CH";
+        String EBSuser = "C:\\JDeveloper\\WebClient\\SimpleORSIMIntegration\\deploy\\sap_file.txt";
+        String EBSpass = "C:\\JDeveloper\\WebClient\\SimpleORSIMIntegration\\deploy\\ITEMS_ITEMCRE";
+        try {
+            Properties prop = new Properties();
+            String propFileName = "/u01/entel/jars/xoffice.properties";
+            //propFileName = "C:\\Users\\proyecto\\Documents\\ODI\\conf\\xoffice.properties";
+            InputStream inputStream = new FileInputStream(propFileName);
+            if (inputStream != null) {
+                prop.load(inputStream);
+                EBSconnectionURI = prop.getProperty("EBSconnectionURI");
+                EBSuser = prop.getProperty("EBSuser");
+                EBSpass = prop.getProperty("EBSpass");
+                xOfficePath = prop.getProperty("sapxOfficePath");
+                country = prop.getProperty("country");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+        }
 
         String result = "";
         int count = 0;
@@ -65,24 +130,19 @@ public class XOfficeController {
         List<String[]> params = new ArrayList();
 
         try {
-            params = common.readSapFile(sapFilePath);
-
+            params = common.readEBSDB(EBSconnectionURI, EBSuser, EBSpass);
             fw = new FileWriter(xOfficePath + fileToWrite);
             bw = new BufferedWriter(fw);
-
             bw.write("<Header line_count=\"".concat(String.valueOf(params.size()).concat("\" download_id=\"" +
                                                                                          sdfForFile.format(actualDate) +
                                                                                          "\" application_date=\"".concat(sdf.format(actualDate).concat("\" target_org_node=\"*:*\" deployment_name=\"*:*\" download_time=\"IMMEDIATE\" apply_immediately=\"true\"/>\n")))));
-
             for (String[] sapParams : params) {
                 if (sapParams.length > 5 && sapParams[5].equalsIgnoreCase("true")) {
                     bw.write("INSERT|ITEM|" + sapParams[0] + "|ITEM|||STANDARD|" + sapParams[1] + "|" + sapParams[1] +
-                             "|" + sapParams[2] + "||" + sapParams[3] + "|" + sapParams[4] +
-                             "||||||||EA|||||||CL|||||||||||||||||||1|||||||||||||||||||||||||||||||||||||||*|*||||1|||||||\n");
+                             "|" + sapParams[14] + "||" + sapParams[15] + "|" + sapParams[16] +
+                             "||||||||EA|||||||CL_REGULAR|||||||||||||||||||1|||||||||||||||||||||||||||||||||||||||*|*||||1|||||||\n");
                 }
             }
-
-
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -92,7 +152,6 @@ public class XOfficeController {
                 if (fw != null)
                     fw.close();
             } catch (IOException ex) {
-
                 ex.printStackTrace();
             }
         }
@@ -307,10 +366,8 @@ public class XOfficeController {
     }
 
     private static Integer countLines(FileReader fr) {
-
         Integer count = -1;
         BufferedReader br = null;
-
         try {
             br = new BufferedReader(fr);
             while (br.readLine() != null) {
@@ -319,18 +376,12 @@ public class XOfficeController {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-
             try {
-
                 if (br != null)
                     br.close();
-
             } catch (IOException ex) {
-
                 ex.printStackTrace();
-
             }
-
         }
         return count;
     }

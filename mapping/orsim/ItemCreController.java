@@ -526,10 +526,7 @@ public class ItemCreController {
                 //EJB client integration.
                 odiInvokeEJBItemCre(orsimXMLPath + "_" + sapParams[0] + ".XML",
                                     orsimXMLPath + "_" + sapParams[0] + "RSP.XML");
-
-
             }
-
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
         } catch (TransformerException tfe) {
@@ -541,15 +538,15 @@ public class ItemCreController {
     public String mapDBToXml() {
         String result = "";
         String EBSconnectionURI = "CH";
-        String EBSuser = "C:\\JDeveloper\\WebClient\\\\SimpleORSIMIntegration\\deploy\\sap_file.txt";
-        String EBSpass = "C:\\JDeveloper\\WebClient\\\\SimpleORSIMIntegration\\deploy\\ITEMS_ITEMCRE";
+        String EBSuser = "C:\\JDeveloper\\WebClient\\SimpleORSIMIntegration\\deploy\\sap_file.txt";
+        String EBSpass = "C:\\JDeveloper\\WebClient\\SimpleORSIMIntegration\\deploy\\ITEMS_ITEMCRE";
         String country = "";
         String orsimXMLPath = "";
         List<String[]> params = new ArrayList();
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/itemcre.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\itemcre.properties";
+            //propFileName = "C:\\Users\\proyecto\\Documents\\ODI\\conf\\itemcre.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -603,15 +600,15 @@ public class ItemCreController {
                 itemHdrDesc.appendChild(tran_level);
 
                 Element dept = doc.createElement("ns1:dept");
-                dept.appendChild(doc.createTextNode(sapParams[2]));
+                dept.appendChild(doc.createTextNode(sapParams[14]));
                 itemHdrDesc.appendChild(dept);
 
                 Element eclass = doc.createElement("ns1:class");
-                eclass.appendChild(doc.createTextNode(sapParams[3]));
+                eclass.appendChild(doc.createTextNode(sapParams[15]));
                 itemHdrDesc.appendChild(eclass);
 
                 Element subclass = doc.createElement("ns1:subclass");
-                subclass.appendChild(doc.createTextNode(sapParams[4]));
+                subclass.appendChild(doc.createTextNode(sapParams[16]));
                 itemHdrDesc.appendChild(subclass);
 
                 Element status = doc.createElement("ns1:status");

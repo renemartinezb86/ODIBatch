@@ -193,7 +193,7 @@ public class ItemLocController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/itemloc.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\itemloc.properties";
+            //propFileName = "C:\\Users\\proyecto\\Documents\\Work\\ODI\\conf\\itemloc.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
