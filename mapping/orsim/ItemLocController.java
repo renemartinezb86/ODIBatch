@@ -64,12 +64,12 @@ public class ItemLocController {
         common = new Common();
     }
 
-    public String mapFileToXml() {
+    public String mapWFileToXml() {
         String result = "";
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/itemloc.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\itemloc.properties";
+            //propFileName = "C:\\Users\\Proyecto\\Documents\\JDeveloper\\ODI\\properties\\itemloc.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -96,8 +96,122 @@ public class ItemLocController {
         ArrayList<String[]> ids = new ArrayList<>();
         try {
             List<String[]> readSAP = common.readSapFile(sapFilePath);
+            /*
+            File folder = new File(sapFilePath);
+            if (folder.isDirectory()) {
+                File[] files = folder.listFiles();
+                for (File file : files) {
+                    if (file.getName().contains("txt")) {
+                        file.renameTo(new File(sapFilePathOk + file.getName()));
+                    }
+                }
+            }*/
+            connection = common.getConnection();
+            Statement stmt = null;
+            String query = "select * from ETL_WAREHOUSE_V";
+            stmt = connection.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            while (rs.next()) {
+                String ID = rs.getString("ID");                
+                ids.add(new String[] { ID, "" });
+            }
+
+            //Only for offline connections.
+            /*int[] localIds = new int[] {
+                4, 9, 10, 25, 37, 43, 45, 48, 53, 84, 88, 91, 96, 108, 115, 131, 157, 161, 187, 214, 222, 223, 332, 339,
+                350, 357, 395, 413, 435, 487, 524, 605, 681, 801, 896, 898, 917, 943, 1164, 1165, 1174, 1182, 1268,
+                1270, 1275, 1280, 1295, 1296, 1312, 1342, 1366, 1412, 1424, 1425, 1426, 1427, 1428, 1434, 1437, 1446,
+                1447, 1486, 1505, 1548, 1551, 1559, 1567, 1571, 1572, 1578, 1646, 1712, 1713, 1772, 1775, 1776, 1809,
+                1824, 1830, 1843, 1859, 1875, 1876, 1877, 1884, 1992, 1996, 3043, 3105, 3239, 3258, 3263, 3264, 3265,
+                3266, 3267, 3268, 3274, 3275, 3276, 3277, 3278, 3280, 3286, 3287, 3288, 3293, 3294, 3305, 3309, 3315,
+                3318, 3321, 3325, 3327, 3328, 3329, 3361, 3363, 3516, 3524, 3593, 3609, 3667, 3680, 3688, 3704, 3715,
+                3755, 3797, 3798, 3804, 3805, 3806, 3807, 3809, 3810, 3812, 3814, 3815, 3819, 3828, 3831, 3833, 3834,
+                3835, 3838, 3841, 3846, 3852, 3856, 3857, 3863, 3892, 3917, 3922, 3957, 3958, 4013, 4026, 4063, 4064,
+                4065, 4066, 4067, 4069, 4070, 4071, 4072, 4073, 4077, 4079, 4095, 4096, 4097, 4098, 4099, 4100, 4101,
+                4102, 4103, 4104, 4105, 4106, 4107, 4110, 4111, 4112, 4113, 4114, 4115, 4116, 4117, 4118, 4120, 4121,
+                4122, 4123, 4124, 4125, 4126, 4127, 4128, 4129, 4130, 4131, 4132, 4133, 4134, 4135, 4136, 4137, 4138,
+                4140, 4144, 4146, 4147, 4148, 4149, 4154, 4155, 4156, 4157, 4158, 4159, 4160, 4161, 4162, 4163, 4164,
+                4165, 4166, 4167, 4168, 4169, 4170, 4171, 4172, 4173, 4174, 4175, 4176, 4177, 4179, 4180, 4181, 4185,
+                4186, 4187, 4188, 4189, 4190, 4191, 4192, 4193, 4194, 4195, 4197, 4198, 4199, 4200, 4201, 4281, 4294,
+                4295, 4296, 4297, 4298, 4305, 4306, 4309, 4313, 4324, 4388, 4398, 4399, 4400, 4401, 4410, 4411
+            };
+            int[] localIds = new int[] { 43 };
+            for (int i = 0; i < localIds.length; i++) {
+                String ID = localIds[i] + "";
+                String description = "";
+                ids.add(new String[] { ID, description });
+            }*/
+
+            for (String[] strings : readSAP) {
+                try {
+                    String code = strings[0];
+                    String name = strings[1];
+                    String flag = strings[5];
+                    String description = strings[1];
+                    for (String[] id : ids) {
+                        ArrayList<String[]> listIds = new ArrayList<>();
+                        listIds.add(id);
+                        Element doc = ItemLocController.generateXML(code, name, description, listIds, false);
+                        printXML(doc, code + "_" + id[0]+"_W");
+
+                        //EJB client integration.
+                        odiInvokeEJBItemLoc(orsimXMLPath + code + "_" + id[0]+"_W" + ".XML",
+                                            orsimXMLPath + code + "_" + id[0] + "RSP_W.XML", flag);
+                    }
+
+                } catch (ParserConfigurationException e) {
+                    e.printStackTrace();
+                } catch (TransformerException e) {
+                    e.printStackTrace();
+                }
+            }
 
 
+        } catch (Exception e) {
+
+            e.printStackTrace();
+            return "ERROR";
+
+        }
+        if (connection != null) {
+        } else {
+        }
+        return result;
+    }
+
+    public String mapFileToXml() {
+        String result = "";
+        try {
+            Properties prop = new Properties();
+            String propFileName = "/u01/entel/jars/itemloc.properties";
+            //propFileName = "C:\\Users\\Proyecto\\Documents\\JDeveloper\\ODI\\properties\\itemloc.properties";
+            InputStream inputStream = new FileInputStream(propFileName);
+            if (inputStream != null) {
+                prop.load(inputStream);
+                country = prop.getProperty("country");
+                sapFilePath = prop.getProperty("sapPFilePath");
+                sapFilePathOk = prop.getProperty("sapPFileOk");
+                sapFilePathError = prop.getProperty("sapFileError");
+                sapFilePathWar = prop.getProperty("sapFileWar");
+                orsimXMLPath = prop.getProperty("orsimXMLPath");
+                connectionURI = prop.getProperty("connectionURI");
+                user = prop.getProperty("user");
+                pass = prop.getProperty("pass");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            StringWriter sw = new StringWriter();
+            PrintWriter pw = new PrintWriter(sw);
+            e.printStackTrace(pw);
+        }
+
+        common = new Common(connectionURI, user, pass);
+
+        Connection connection = null;
+        ArrayList<String[]> ids = new ArrayList<>();
+        try {
+            List<String[]> readSAP = common.readSapFile(sapFilePath);
             File folder = new File(sapFilePath);
             if (folder.isDirectory()) {
                 File[] files = folder.listFiles();
@@ -157,7 +271,7 @@ public class ItemLocController {
                     for (String[] id : ids) {
                         ArrayList<String[]> listIds = new ArrayList<>();
                         listIds.add(id);
-                        Element doc = ItemLocController.generateXML(code, name, description, listIds);
+                        Element doc = ItemLocController.generateXML(code, name, description, listIds, true);
                         printXML(doc, code + "_" + id[0]);
 
                         //EJB client integration.
@@ -283,7 +397,7 @@ public class ItemLocController {
                     for (String[] id : ids) {
                         ArrayList<String[]> listIds = new ArrayList<>();
                         listIds.add(id);
-                        Element doc = ItemLocController.generateXML(code, name, description, listIds);
+                        Element doc = ItemLocController.generateXML(code, name, description, listIds, true);
                         printXML(doc, code + "_" + id[0]);
 
                         //EJB client integration.
@@ -497,7 +611,7 @@ public class ItemLocController {
                     for (String[] id : ids) {
                         ArrayList<String[]> listIds = new ArrayList<>();
                         listIds.add(id);
-                        Element doc = ItemLocController.generateXML(code, name, description, listIds);
+                        Element doc = ItemLocController.generateXML(code, name, description, listIds, true);
                         printXML(doc, code + "_" + id[0]);
 
                         //EJB client integration.
@@ -575,7 +689,7 @@ public class ItemLocController {
     }
 
     public static Element generateXML(String codeSap, String name, String description,
-                                      ArrayList<String[]> ids) throws ParserConfigurationException {
+                                      ArrayList<String[]> ids,boolean store) throws ParserConfigurationException {
         DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
         DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
@@ -594,7 +708,7 @@ public class ItemLocController {
 
         //ItemLocPhys
         for (String[] s : ids) {
-            Element itemLocPhys = getItemLocPhys(doc, s, name, description);
+            Element itemLocPhys = getItemLocPhys(doc, s, name, description, store);
             rootElement.appendChild(itemLocPhys);
         }
 
@@ -631,7 +745,7 @@ public class ItemLocController {
         return rootElement;
     }
 
-    private static Element getItemLocVirt(String id, String name, String description, Document doc) {
+    private static Element getItemLocVirt(String id, String name, String description, Document doc, boolean store) {
         Element ItemLocVirt = doc.createElement("ItemLocVirt");
 
         //loc
@@ -641,7 +755,7 @@ public class ItemLocController {
 
         //loc_type2
         Element loc_type2 = doc.createElement("loc_type");
-        loc_type2.appendChild(doc.createTextNode("S"));
+        loc_type2.appendChild(store ? doc.createTextNode("S") : doc.createTextNode("W"));
         ItemLocVirt.appendChild(loc_type2);
 
         //local_item_desc
@@ -784,7 +898,7 @@ public class ItemLocController {
     }
 
 
-    public static Element getItemLocPhys(Document doc, String[] id, String name, String description) {
+    public static Element getItemLocPhys(Document doc, String[] id, String name, String description, boolean store) {
         Element itemLocPhys = doc.createElement("ItemLocPhys");
 
         //physical_loc
@@ -794,7 +908,7 @@ public class ItemLocController {
 
         //loc_type
         Element loc_type = doc.createElement("loc_type");
-        loc_type.appendChild(doc.createTextNode("S"));
+        loc_type.appendChild(store ? doc.createTextNode("S") : doc.createTextNode("W"));
         itemLocPhys.appendChild(loc_type);
 
         //store_type
@@ -808,7 +922,7 @@ public class ItemLocController {
         itemLocPhys.appendChild(stockholding_ind);
 
         //ItemLocVirt
-        Element ItemLocVirt = getItemLocVirt(id[0], name, description, doc);
+        Element ItemLocVirt = getItemLocVirt(id[0], name, description, doc, store);
 
         itemLocPhys.appendChild(ItemLocVirt);
         return itemLocPhys;
@@ -857,7 +971,7 @@ public class ItemLocController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/config.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\config.properties";
+            //propFileName = "C:\\Users\\Proyecto\\Documents\\JDeveloper\\ODI\\properties\\config.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);

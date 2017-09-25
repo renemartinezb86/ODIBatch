@@ -61,7 +61,7 @@ public class ItemCreController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/itemcre.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\itemcre.properties";
+            //propFileName = "C:\\Users\\Proyecto\\Documents\\JDeveloper\\ODI\\properties\\itemcre.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -305,7 +305,7 @@ public class ItemCreController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/itemcre.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\itemcre.properties";
+            //propFileName = "C:\\Users\\Proyecto\\Documents\\JDeveloper\\ODI\\properties\\itemcre.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -546,7 +546,7 @@ public class ItemCreController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/itemcre.properties";
-            //propFileName = "C:\\Users\\proyecto\\Documents\\ODI\\conf\\itemcre.properties";
+            //propFileName = "C:\\Users\\Proyecto\\Documents\\JDeveloper\\ODI\\properties\\itemcre.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -792,7 +792,7 @@ public class ItemCreController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/config.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\config.properties";
+            //propFileName = "C:\\Users\\Proyecto\\Documents\\JDeveloper\\ODI\\properties\\config.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -888,7 +888,7 @@ public class ItemCreController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/itemcre.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\itemcre.properties";
+            //propFileName = "C:\\Users\\Proyecto\\Documents\\JDeveloper\\ODI\\properties\\itemcre.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
