@@ -144,7 +144,7 @@ public class EcmController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/ecm.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\ecm.properties";
+            //propFileName = "C:\\Users\\proyecto\\Documents\\Work\\ODI\\conf\\ecm.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);

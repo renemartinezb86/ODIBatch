@@ -37,12 +37,15 @@ public class XOfficeController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/xoffice.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\xoffice.properties";
+            //propFileName = "C:\\Users\\proyecto\\Documents\\Work\\ODI\\conf\\xoffice.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
                 sapFilePath = prop.getProperty(origin);
-                xOfficePath = prop.getProperty("sapxOfficePath");
+                if (origin.equals("sapRecoveryPath"))
+                    xOfficePath = prop.getProperty("sapRecoveryxOfficePath");
+                else
+                    xOfficePath = prop.getProperty("sapxOfficePath");
                 country = prop.getProperty("country");
             }
         } catch (Exception e) {

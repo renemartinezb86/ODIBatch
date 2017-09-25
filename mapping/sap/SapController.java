@@ -99,7 +99,7 @@ public class SapController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/sap.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\sap.properties";
+            //propFileName = "C:\\Users\\proyecto\\Documents\\Work\\ODI\\conf\\sap.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -163,6 +163,7 @@ public class SapController {
                 Statement stmt = null;
                 stmt = getConnection().createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 String finalQuery = String.format(osbQuery, param[0]);
+                //ResultSet rsd = stmt.executeQuery("ALTER SESSION SET CURRENT_SCHEMA = TDEFMWUAT01");
                 ResultSet rs = stmt.executeQuery(finalQuery);
                 rs.last();
                 if (rs.getRow() > 0) {
@@ -217,12 +218,15 @@ public class SapController {
             }
         }
 
-
         for (String fileName : processedFiles) {
             File file = new File(failXMLPath + fileName);
             if (file.getName().contains("txt")) {
-                System.out.println("Moving: " + failXMLPath + fileName + " to: " + sapFileOk + fileName);
-                file.renameTo(new File(sapFileOk + fileName));
+                //file.renameTo(new File(sapFileOk + fileName));
+                if (file.delete()) {
+                    System.out.println("Deleting: " + failXMLPath + fileName);
+                } else {
+                    System.out.println("Error quen deleting: " + failXMLPath + fileName);
+                }
             }
         }
         return result;
@@ -233,7 +237,7 @@ public class SapController {
         try {
             Properties prop = new Properties();
             String propFileName = "/u01/entel/jars/sap.properties";
-            //propFileName = "D:\\Work\\ODI\\conf\\sap.properties";
+            //propFileName = "C:\\Users\\proyecto\\Documents\\Work\\ODI\\conf\\sap.properties";
             InputStream inputStream = new FileInputStream(propFileName);
             if (inputStream != null) {
                 prop.load(inputStream);
@@ -297,6 +301,7 @@ public class SapController {
                 Statement stmt = null;
                 stmt = getConnection().createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
                 String finalQuery = String.format(osbQuery, param[0]);
+                //ResultSet rsd = stmt.executeQuery("ALTER SESSION SET CURRENT_SCHEMA = TDEFMWUAT01");
                 ResultSet rs = stmt.executeQuery(finalQuery);
                 rs.last();
                 if (rs.getRow() > 0) {
