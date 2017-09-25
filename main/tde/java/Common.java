@@ -650,7 +650,7 @@ public class Common {
         } catch (ClassNotFoundException e) {
         }
         try {
-            bconnection = DriverManager.getConnection(connectionURI, user, pass);
+            bconnection = DriverManager.getConnection(url, buser, bpass);
         } catch (SQLException e) {
         }
         try {
@@ -673,7 +673,7 @@ public class Common {
                 "          from inv.mtl_category_sets_b x, mtl_category_sets_tl y\n" +
                 "         where x.category_set_id = y.category_set_id\n" +
                 "           and y.category_set_name = 'Inventory'\n" + "           and y.language = 'ESA')";
-
+            System.out.println(url + "  "+ buser+ "  "+ bpass);
             stmt = bconnection.createStatement();
             ResultSet rs = stmt.executeQuery(query);
             while (rs.next()) {
@@ -874,7 +874,7 @@ public class Common {
                                         }
                                     }
                                 }
-                                
+
                                 Node iccidNodes =
                                     doc.getElementsByTagNameNS("http://www.entel.cl/CSM/RA/CHL/ODI/ODI/PublishProductOrder/v1",
                                                                "ICCID").getLength() > 0 ?
@@ -1025,6 +1025,31 @@ public class Common {
             e.printStackTrace();
         }
         return params;
+    }
+
+    public String readSiebelPOSData(String login) {
+        String result = "";
+        try {
+            Statement stmt = null;
+            String query =
+                "select S_CONTACT.SOC_SECURITY_NUM\n" + "from SIEBEL.S_CONTACT, SIEBEL.S_USER\n" +
+                "WHERE S_USER.ROW_ID = S_CONTACT.PAR_ROW_ID\n" + "AND S_USER.LOGIN='" + login + "'";
+            stmt = getConnection().createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                String SOC_SECURITY_NUM = "";
+                if (hasColumn(rs, "SOC_SECURITY_NUM") && rs.getString("SOC_SECURITY_NUM") != null) {
+                    SOC_SECURITY_NUM = rs.getString("SOC_SECURITY_NUM");
+                }
+                result = SOC_SECURITY_NUM;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (connection != null) {
+        } else {
+        }
+        return result;
     }
 
 
@@ -2007,6 +2032,158 @@ public class Common {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return params;
+    }
+
+    public List<String[]> readPOSSalesPreFile(String POSconnectionURI, String POSuser, String POSpass, String query) {
+        List<String[]> params = new ArrayList();
+        Connection POSconnection = null;
+        try {
+            Statement stmt = null;
+            Class.forName("oracle.jdbc.OracleDriver");
+            POSconnection = DriverManager.getConnection(POSconnectionURI, POSuser, POSpass);
+            stmt = POSconnection.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            String login = "";
+            String salesCode = "";
+            String sucursalCode = "";
+
+            String clientCity = "";
+            String IMEI = "";
+            String ICCID = "";
+            String salesDate = null;
+            String productOffer = "";
+            String precio = "";
+
+            String[] param = null;
+            //"RUT/RUC Código del Personal;Código del Cliente;Tipo de documento;Tipo RUC;Nombre del Cliente;Ciudad de Domicílio del Cliente;MSISDN;IMEI;IMSI;CustomerSince;Portabilidad;Operador Origen;Plan Origen Portabilidad;Product Offer;Fecha de la Venta;Precio";
+            while (rs.next()) {
+                if (hasColumn(rs, "VENDEDOR") && rs.getString("VENDEDOR") != null) {
+                    login = rs.getString("VENDEDOR");
+                }
+                if (hasColumn(rs, "COD_VENTA") && rs.getString("COD_VENTA") != null) {
+                    salesCode = rs.getString("COD_VENTA");
+                }
+                if (hasColumn(rs, "COD_SURUSAL") && rs.getString("COD_SURUSAL") != null) {
+                    sucursalCode = rs.getString("COD_SURUSAL");
+                }
+                if (hasColumn(rs, "CIUDAD") && rs.getString("CIUDAD") != null) {
+                    clientCity = rs.getString("CIUDAD");
+                }
+                if (hasColumn(rs, "SERIAL_NBR") && rs.getString("SERIAL_NBR") != null) {
+                    IMEI = rs.getString("SERIAL_NBR");
+                }
+                if (hasColumn(rs, "ICCID") && rs.getString("ICCID") != null) {
+                    ICCID = rs.getString("ICCID");
+                }
+                if (hasColumn(rs, "FECHA") && rs.getString("FECHA") != null) {
+                    salesDate = rs.getString("FECHA");
+                }
+                if (hasColumn(rs, "ITEM_ID") && rs.getString("ITEM_ID") != null) {
+                    productOffer = rs.getString("ITEM_ID");
+                }
+                if (hasColumn(rs, "MONTO") && rs.getString("MONTO") != null) {
+                    precio = rs.getString("MONTO");
+                }
+                String rut = readSiebelPOSData(login);
+
+                /*SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+                String fecha_venta = "";
+                if (salesDate != null) {
+                    fecha_venta = df.format(salesDate);
+                }*/
+
+                param = new String[] {
+                    salesCode, "", sucursalCode, rut, "", "", "", "", clientCity, "", IMEI, ICCID, "", "", "", "",
+                    productOffer, salesDate, precio
+                };
+                params.add(param);
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (POSconnection != null) {
+            try {
+                POSconnection.close();
+            } catch (SQLException e) {
+            }
+        } else {
+        }
+
+        return params;
+    }
+
+    public List<String[]> readPOSEquiposPreFile(String POSconnectionURI, String POSuser, String POSpass, String query) {
+        List<String[]> params = new ArrayList();
+        Connection POSconnection = null;
+        try {
+            Statement stmt = null;
+            Class.forName("oracle.jdbc.OracleDriver");
+            POSconnection = DriverManager.getConnection(POSconnectionURI, POSuser, POSpass);
+            stmt = POSconnection.createStatement();
+            ResultSet rs = stmt.executeQuery(query);
+
+            String login = "";
+            String salesCode = "";
+            String sucursalCode = "";
+
+            String clientCity = "";
+            String IMEI = "";
+            String salesDate = null;
+            String productOffer = "";
+            String precio = "";
+
+            String[] param = null;
+            while (rs.next()) {
+                if (hasColumn(rs, "VENDEDOR") && rs.getString("VENDEDOR") != null) {
+                    login = rs.getString("VENDEDOR");
+                }
+                if (hasColumn(rs, "COD_VENTA") && rs.getString("COD_VENTA") != null) {
+                    salesCode = rs.getString("COD_VENTA");
+                }
+                if (hasColumn(rs, "COD_SURUSAL") && rs.getString("COD_SURUSAL") != null) {
+                    sucursalCode = rs.getString("COD_SURUSAL");
+                }
+                if (hasColumn(rs, "CIUDAD") && rs.getString("CIUDAD") != null) {
+                    clientCity = rs.getString("CIUDAD");
+                }
+                if (hasColumn(rs, "SERIAL_NBR") && rs.getString("SERIAL_NBR") != null) {
+                    IMEI = rs.getString("SERIAL_NBR");
+                }
+                if (hasColumn(rs, "FECHA") && rs.getString("FECHA") != null) {
+                    salesDate = rs.getString("FECHA");
+                }
+                if (hasColumn(rs, "ITEM_ID") && rs.getString("ITEM_ID") != null) {
+                    productOffer = rs.getString("ITEM_ID");
+                }
+                if (hasColumn(rs, "MONTO") && rs.getString("MONTO") != null) {
+                    precio = rs.getString("MONTO");
+                }
+                /*SimpleDateFormat df = new SimpleDateFormat("yyyyMMddHHmmss");
+                String fecha_venta = "";
+                if (salesDate != null) {
+                    fecha_venta = df.format(salesDate);
+                }*/
+                String rut = readSiebelPOSData(login);
+
+                param = new String[] {
+                    salesCode, "", sucursalCode, rut, "", "", clientCity, "", IMEI, salesDate, productOffer, precio
+                };
+                params.add(param);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (POSconnection != null) {
+            try {
+                POSconnection.close();
+            } catch (SQLException e) {
+            }
+        } else {
+        }
+
         return params;
     }
 

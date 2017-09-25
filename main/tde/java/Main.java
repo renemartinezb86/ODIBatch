@@ -41,11 +41,11 @@ public class Main {
         if (args.length > 0) {
             switch (args[0]) {
             case "-ebs":
-                    //ETL_Accessory_EBS_to_CDM
-                    itemCreController.mapDBToXml();
-                    itemLocController.mapDBToXml();
-                    xOfficeController.mapDBToXOffice();
-                    break;
+                //ETL_Accessory_EBS_to_CDM
+                itemCreController.mapDBToXml();
+                itemLocController.mapDBToXml();
+                xOfficeController.mapDBToXOffice();
+                break;
             case "-ecm":
                 //ETL_ProductOffering_CDM_to_SIM_XOffice_RTD
                 xOfficeController.mapXmlToXOffice();
@@ -85,9 +85,17 @@ public class Main {
                 //ETL_VentaPre_CDM_to_IB
                 salesController.eocOrderToVentaPre();
                 break;
+            case "-psa":
+                //ETL_VentaPre_CDM_to_IB
+                salesController.posDBToSalesPre();
+                break;
             case "-equ":
                 //ETL_EquipoPre_CDM_to_IB
                 equiposController.eocOrderToEquiposPre();
+                break;
+            case "-peq":
+                //ETL_EquipoPre_CDM_to_IB
+                equiposController.posDBToEquiposPre();
                 break;
             case "-sim":
                 //ETL_SimCardPre_CDM_to_IB
@@ -122,12 +130,20 @@ public class Main {
                 break;
             }
         } else {
-            //ETL_Accessory_CDM_to_XOffice_SIM_ECM
-            //activePreController.eocOrderToActivePre();
-            equiposController.eocOrderToEquiposPre();
+            /*            equiposController.eocOrderToEquiposPre();
             simController.eocOrderToSimPre();
             salesController.eocOrderToVentaPre();
-            activePreController.eocOrderToActivePre();
+            activePreController.eocOrderToActivePre();*/
+            
+            /*sapController.processFailure();
+            xOfficeController.mapSAPToXOffice("sapFilePath");
+            ecmController.mapAFileToXML("sapFilePath");*/
+
+            /*sapController.checkFailure();
+            xOfficeController.mapSAPToXOffice("sapRecoveryPath");
+            ecmController.mapAFileToXML("sapRecoveryPath");*/
+            //equiposController.posDBToEquiposPre();
+            salesController.posDBToSalesPre();
         }
     }
 }
