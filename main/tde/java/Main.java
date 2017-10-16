@@ -37,6 +37,8 @@ public class Main {
         CDMController cDMController = new CDMController();
         ActivePreController activePreController = new ActivePreController();
         SapController sapController = new SapController();
+        ContactController contactController = new ContactController();
+        EfectController efectController = new EfectController();
 
         if (args.length > 0) {
             switch (args[0]) {
@@ -73,6 +75,7 @@ public class Main {
             case "-spr":
                 //ETL_Product_CDM_to_XOffice_SIM_ECM
                 itemCreController.mapFileToXml();
+                itemLocController.mapWFileToXml();
                 itemLocController.mapFileToXml();
                 //xOfficeController.mapSAPToXOffice();
                 //ecmController.mappFileToXML();
@@ -121,6 +124,14 @@ public class Main {
                 //ETL_ActivePre_CDM_to_IB
                 activePreController.eocOrderToActivePre();
                 break;
+            case "-con":
+                //ETL_ContactabilidadCampana_SIE_to_CDM
+                contactController.mapPosToIB();
+                break;
+            case "-efe":
+                //ETL_EfectividadCampana_SIE_to_CDM
+                efectController.mapPosToIB();
+                break;
             default:
                 //SAP to ORSIM
                 xOfficeController.mapSAPToXOffice("sapFilePath");
@@ -130,11 +141,11 @@ public class Main {
                 break;
             }
         } else {
-            /*            equiposController.eocOrderToEquiposPre();
+            /*equiposController.eocOrderToEquiposPre();
             simController.eocOrderToSimPre();
             salesController.eocOrderToVentaPre();
             activePreController.eocOrderToActivePre();*/
-            
+
             /*sapController.processFailure();
             xOfficeController.mapSAPToXOffice("sapFilePath");
             ecmController.mapAFileToXML("sapFilePath");*/
@@ -143,7 +154,9 @@ public class Main {
             xOfficeController.mapSAPToXOffice("sapRecoveryPath");
             ecmController.mapAFileToXML("sapRecoveryPath");*/
             //equiposController.posDBToEquiposPre();
-            salesController.posDBToSalesPre();
+            //salesController.posDBToSalesPre();
+            contactController.mapPosToIB();
+            efectController.mapPosToIB();
         }
     }
 }
